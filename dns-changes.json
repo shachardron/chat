@@ -1,0 +1,27 @@
+{
+  "Changes": [
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "_96e648c9e67c58bb22dd6dd5ccde7be5.agent.emailsessb.com.",
+        "Type": "CNAME",
+        "TTL": 300,
+        "ResourceRecords": [
+          { "Value": "_74432af53826d99584ddb2676b90d44a.jkddzztszm.acm-validations.aws." }
+        ]
+      }
+    },
+    {
+      "Action": "UPSERT",
+      "ResourceRecordSet": {
+        "Name": "agent.emailsessb.com.",
+        "Type": "A",
+        "AliasTarget": {
+          "HostedZoneId": "Z215JYRZR1TBD5",
+          "DNSName": "bedrock-chat-dev-alb-903002313.eu-central-1.elb.amazonaws.com.",
+          "EvaluateTargetHealth": true
+        }
+      }
+    }
+  ]
+}

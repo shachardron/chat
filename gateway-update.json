@@ -1,0 +1,6 @@
+{
+  "gatewayIdentifier": "bedrock-chat-dev-web-search-gw-kqdyhfl1rm",
+  "name": "bedrock-chat-dev-web-search-gw",
+  "roleArn": "arn:aws:iam::660653690423:role/bedrock-chat-dev-ws-gateway-role",
+  "authorizerType": "AWS_IAM"
+}

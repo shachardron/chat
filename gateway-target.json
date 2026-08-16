@@ -1,0 +1,16 @@
+{
+  "gatewayIdentifier": "bedrock-chat-dev-web-search-gw-b33myaxzau",
+  "name": "web-search",
+  "targetConfiguration": {
+    "mcp": {
+      "connector": {
+        "source": {
+          "connectorId": "web-search",
+          "version": "1.2.0"
+        },
+        "configurations": [{"name": "WebSearch", "parameterValues": {}}]
+      }
+    }
+  },
+  "credentialProviderConfigurations": [{"credentialProviderType": "GATEWAY_IAM_ROLE"}]
+}

@@ -1,0 +1,14 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowAWSMCPServer",
+      "Effect": "Allow",
+      "Action": [
+        "aws-mcp:*",
+        "execute-api:Invoke"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

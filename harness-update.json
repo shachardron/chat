@@ -1,0 +1,23 @@
+{
+  "harnessId": "bedrock_chat_dev-7yXofgimZQ",
+  "tools": [
+    {
+      "type": "agentcore_gateway",
+      "name": "web-search",
+      "config": {
+        "agentCoreGateway": {
+          "gatewayArn": "arn:aws:bedrock-agentcore:us-east-1:660653690423:gateway/bedrock-chat-dev-web-search-gw-b33myaxzau"
+        }
+      }
+    },
+    {
+      "type": "remote_mcp",
+      "name": "aws-docs",
+      "config": {
+        "remoteMcp": {
+          "url": "https://aws-mcp.eu-central-1.api.aws/mcp"
+        }
+      }
+    }
+  ]
+}

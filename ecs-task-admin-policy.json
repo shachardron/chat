@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AdminHarnessManagement",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore-control:GetHarness",
+        "bedrock-agentcore-control:UpdateHarness",
+        "bedrock-agentcore:GetHarness",
+        "bedrock-agentcore:UpdateHarness",
+        "bedrock-agentcore:UpdateAgentRuntime"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# Do NOT commit terraform.tfvars to version control.
+
+aws_region   = "eu-central-1"
+project_name = "bedrock-chat"
+environment  = "dev"
+
+# ── Existing VPC (account: 660653690423, region: eu-central-1) ────────────
+
+vpc_id = "vpc-04fca567e16e589f0"   # bedrock-chat-vpc (10.0.0.0/16)
+
+# Public subnets — used by the ALB (2 AZs)
+public_subnet_ids = [
+  "subnet-0971ffde4db69f2f1",   # Public A — eu-central-1b (10.0.2.0/24)
+  "subnet-0911e85356c73a844",   # Public B — eu-central-1a (10.0.1.0/24)
+]
+
+# Private subnets — used by ECS Fargate tasks (2 AZs)
+private_subnet_ids = [
+  "subnet-020f1156ab6dfd309",   # bedrock-chat-private-a — eu-central-1a (10.0.3.0/24)
+  "subnet-07683b86b382ed2cb",   # bedrock-chat-private-b — eu-central-1b (10.0.4.0/24)
+]
+
+# ── Cognito ───────────────────────────────────
+# Fill in after the first apply so Cognito knows the ALB DNS
+cognito_callback_urls = ["https://REPLACE_WITH_ALB_DNS/callback"]
+cognito_logout_urls   = ["https://REPLACE_WITH_ALB_DNS/logout"]
+
+# ── Model ─────────────────────────────────────
+# Claude Opus 4.7 — EU cross-region inference profile (ACTIVE in account)
+# Routes across: eu-central-1, eu-north-1, eu-south-1, eu-south-2, eu-west-1, eu-west-3
+model_id = "eu.anthropic.claude-opus-4-7"
+
+# ── Web search ────────────────────────────────
+# No API key needed. Uses the native AgentCore Web Search connector.
+# A Gateway is automatically created in us-east-1 (the only region
+# where the connector is available). The eu-central-1 Harness connects
+# to it via remote_mcp over HTTPS, signed with IAM SigV4.
+
+# ── WAF — IP allowlist ────────────────────────
+# Only these IPs can reach the chat frontend. All other traffic gets a 403.
+# Use /32 for a single host, /24 for a /24 subnet, etc.
+# To find your current public IP: curl -s https://checkip.amazonaws.com
+waf_allowed_ip_cidrs = [
+  "REPLACE_WITH_YOUR_IP/32",    # e.g. 203.0.113.42/32
+  # "10.0.0.0/8",               # corporate VPN range example
+]
+
+# IPv6 allowlist (leave empty if not needed)
+waf_allowed_ipv6_cidrs = []
+
+# ── ECS / Frontend ────────────────────────────
+frontend_image_tag = "latest"
+
+container_cpu    = 512
+container_memory = 1024
+desired_count    = 2

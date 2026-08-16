@@ -1,0 +1,14 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "GetHarnessTools",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore-control:GetHarness",
+        "bedrock-agentcore:GetHarness"
+      ],
+      "Resource": "arn:aws:bedrock-agentcore:eu-central-1:660653690423:harness/*"
+    }
+  ]
+}

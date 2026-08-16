@@ -1,0 +1,24 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "InvokeWebSearchGateway",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:InvokeGateway",
+        "bedrock-agentcore:InvokeAgentRuntime"
+      ],
+      "Resource": [
+        "arn:aws:bedrock-agentcore:us-east-1:660653690423:gateway/bedrock-chat-dev-web-search-gw-b33myaxzau"
+      ]
+    },
+    {
+      "Sid": "InvokeWebSearchConnector",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:InvokeConnector"
+      ],
+      "Resource": "arn:aws:bedrock-agentcore:us-east-1:660653690423:connector/web-search"
+    }
+  ]
+}

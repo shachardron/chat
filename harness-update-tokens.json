@@ -1,0 +1,10 @@
+{
+  "harnessId": "bedrock_chat_dev-7yXofgimZQ",
+  "model": {
+    "bedrockModelConfig": {
+      "modelId": "eu.anthropic.claude-opus-4-7",
+      "maxTokens": 8192,
+      "apiFormat": "converse_stream"
+    }
+  }
+}

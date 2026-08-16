@@ -1,0 +1,25 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AgentCoreMemory",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:ListEvents",
+        "bedrock-agentcore:GetEvent",
+        "bedrock-agentcore:CreateEvent",
+        "bedrock-agentcore:GetMemory",
+        "bedrock-agentcore:CreateMemory",
+        "bedrock-agentcore:UpdateMemory",
+        "bedrock-agentcore:ListMemories",
+        "bedrock-agentcore:InvokeMemory",
+        "bedrock-agentcore:RetrieveMemoryRecords",
+        "bedrock-agentcore:GetMemoryRecord",
+        "bedrock-agentcore:ListMemoryRecords",
+        "bedrock-agentcore:CreateMemoryRecord",
+        "bedrock-agentcore:DeleteMemoryRecord"
+      ],
+      "Resource": "arn:aws:bedrock-agentcore:eu-central-1:660653690423:memory/*"
+    }
+  ]
+}
