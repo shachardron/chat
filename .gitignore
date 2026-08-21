@@ -2,9 +2,16 @@
 terraform/.terraform/
 terraform/*.tfstate
 terraform/*.tfstate.backup
+terraform/*.tfstate.*.backup
 terraform/*.tfstate.lock.info
 terraform/.terraform.lock.hcl
 terraform/terraform.tfvars
+
+# Temp/manual files
+*.json.bak
+dns-update.json
+harness-update*.json
+memory-policy.json
 
 # Frontend
 frontend/node_modules/
@@ -16,3 +23,4 @@ frontend/.env.*.local
 # General
 .DS_Store
 *.log
+C:\temp\

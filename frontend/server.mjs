@@ -147,6 +147,70 @@ const server = http.createServer(async (req, res) => {
     return
   }
 
+  // ── Harness proxy — InvokeHarness via IAM (SigV4) ──
+  // The browser can't call AgentCore directly (CORS + JWT audience issues).
+  // This endpoint proxies via the AWS SDK using ECS task role credentials.
+  if (urlPath === '/api/harness' && req.method === 'POST') {
+    if (!req.headers['authorization']?.startsWith('Bearer ')) {
+      res.writeHead(401, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: 'Unauthorized' }))
+      return
+    }
+
+    const sessionId = req.headers['x-session-id'] ?? 'default-session'
+
+    try {
+      const body = await readBody(req)
+      const { messages, tools, allowedTools } = body
+
+      const { BedrockAgentCoreClient, InvokeHarnessCommand } =
+        await import('@aws-sdk/client-bedrock-agentcore')
+
+      const { region } = harnessInfo()
+      const harnessArnFull = process.env.VITE_HARNESS_ARN ?? ''
+      const client = new BedrockAgentCoreClient({ region })
+
+      const cmdInput = {
+        harnessArn: harnessArnFull,
+        qualifier: 'DEFAULT',
+        runtimeSessionId: sessionId,
+        messages,
+      }
+      if (tools)        cmdInput.tools = tools
+      if (allowedTools) cmdInput.allowedTools = allowedTools
+
+      const command = new InvokeHarnessCommand(cmdInput)
+      const response = await client.send(command)
+
+      // Stream the event stream back to the browser as SSE
+      res.writeHead(200, {
+        'Content-Type':  'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection':    'keep-alive',
+      })
+
+      if (response.output) {
+        for await (const event of response.output) {
+          if (event.contentBlockDelta?.delta?.text) {
+            const data = JSON.stringify({ text: event.contentBlockDelta.delta.text })
+            res.write(`data: ${data}\n\n`)
+          }
+          if (event.messageStop) {
+            res.write('data: [DONE]\n\n')
+          }
+        }
+      }
+      res.end()
+    } catch (err) {
+      console.error('Harness proxy error:', err.message)
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: err.message }))
+      }
+    }
+    return
+  }
+
   // ── Converse proxy — for messages with file attachments ──
   // Calls Bedrock ConverseStream directly using the ECS task role (SigV4).
   // Required because the Harness only supports text content blocks.
@@ -213,6 +277,71 @@ const server = http.createServer(async (req, res) => {
         if (event.messageStop) {
           res.write('data: [DONE]\n\n')
         }
+      }
+      res.end()
+    } catch (err) {
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: err.message }))
+      }
+    }
+    return
+  }
+
+  // ── Harness proxy — forward InvokeHarness from browser to AgentCore ──
+  // The browser can't call bedrock-agentcore.*.amazonaws.com directly (CORS).
+  // This endpoint forwards the request server-side using the ECS task credentials.
+  if (urlPath === '/api/harness' && req.method === 'POST') {
+    if (!req.headers['authorization']?.startsWith('Bearer ')) {
+      res.writeHead(401, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: 'Unauthorized' }))
+      return
+    }
+
+    const sessionId = req.headers['x-amzn-bedrock-agentcore-runtime-session-id'] ?? ''
+    const accessToken = req.headers['authorization'].slice(7)
+
+    try {
+      const body = await readBody(req)
+      const { harnessArn, region } = harnessInfo()
+      const harnessArnFull = process.env.VITE_HARNESS_ARN ?? ''
+      const awsRegion = region
+
+      const encoded = encodeURIComponent(harnessArnFull)
+      const endpoint = `https://bedrock-agentcore.${awsRegion}.amazonaws.com/harnesses/invoke?harnessArn=${encoded}&qualifier=DEFAULT`
+
+      // Forward to AgentCore with the user's JWT token (Harness validates it)
+      const upstreamResp = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/vnd.amazon.eventstream',
+          'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': sessionId,
+        },
+        body: JSON.stringify(body),
+      })
+
+      if (!upstreamResp.ok) {
+        const errText = await upstreamResp.text()
+        res.writeHead(upstreamResp.status, { 'Content-Type': 'application/json' })
+        res.end(errText)
+        return
+      }
+      if (!upstreamResp.body) throw new Error('No response body from AgentCore')
+
+      // Stream the binary event stream straight back to the browser
+      res.writeHead(200, {
+        'Content-Type': 'application/vnd.amazon.eventstream',
+        'Transfer-Encoding': 'chunked',
+        'Cache-Control': 'no-cache',
+      })
+
+      const reader = upstreamResp.body.getReader()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        res.write(value)
       }
       res.end()
     } catch (err) {

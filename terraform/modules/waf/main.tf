@@ -41,14 +41,22 @@ resource "aws_wafv2_web_acl" "this" {
 
   # Default: block all requests that don't match an allow rule
   default_action {
-    block {
-      custom_response {
-        response_code = 403
-        response_header {
-          name  = "x-blocked-by"
-          value = "bedrock-chat-waf"
+    dynamic "block" {
+      for_each = var.waf_allow_all ? [] : [1]
+      content {
+        custom_response {
+          response_code = 403
+          response_header {
+            name  = "x-blocked-by"
+            value = "bedrock-chat-waf"
+          }
         }
       }
+    }
+
+    dynamic "allow" {
+      for_each = var.waf_allow_all ? [1] : []
+      content {}
     }
   }
 

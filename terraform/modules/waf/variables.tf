@@ -24,3 +24,9 @@ variable "allowed_ipv6_cidrs" {
   type        = list(string)
   default     = []
 }
+
+variable "waf_allow_all" {
+  description = "When true, WAF default action is ALLOW (open to all traffic). Use for pentesting."
+  type        = bool
+  default     = false
+}

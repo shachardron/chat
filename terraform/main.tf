@@ -225,11 +225,12 @@ module "ecs" {
 module "waf" {
   source = "./modules/waf"
 
-  project_name     = var.project_name
-  environment      = var.environment
-  alb_arn          = module.ecs.alb_arn
-  allowed_ip_cidrs = var.waf_allowed_ip_cidrs
+  project_name       = var.project_name
+  environment        = var.environment
+  alb_arn            = module.ecs.alb_arn
+  allowed_ip_cidrs   = var.waf_allowed_ip_cidrs
   allowed_ipv6_cidrs = var.waf_allowed_ipv6_cidrs
+  waf_allow_all      = var.waf_allow_all
 
   depends_on = [module.ecs]
 }

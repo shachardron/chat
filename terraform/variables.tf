@@ -84,6 +84,12 @@ variable "waf_allowed_ipv6_cidrs" {
   default     = []
 }
 
+variable "waf_allow_all" {
+  description = "When true, WAF allows all traffic (for pentesting). Remember to set back to false after."
+  type        = bool
+  default     = false
+}
+
 # ── ECS / Frontend ────────────────────────────
 
 variable "frontend_image_tag" {
